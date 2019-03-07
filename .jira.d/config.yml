@@ -1,0 +1,12 @@
+endpoint: https://ephocks.atlassian.net
+authentication-method: api-token
+
+queries:
+  cloud-team: Team = 23
+  mine: "resolution = unresolved and assignee=currentuser() ORDER BY created"
+
+custom-commands:
+  - name: mine
+    help: display issues assigned to mine
+    script: |-
+      {{jira}} list --named-query mine
