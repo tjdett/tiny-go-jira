@@ -2,10 +2,31 @@ endpoint: https://ephocks.atlassian.net
 authentication-method: api-token
 
 queries:
-  cloud-team: Team = 23
+  cloud-team: "resolution = unresolved and Team = 23"
   mine: "resolution = unresolved and assignee=currentuser() ORDER BY created"
 
 custom-commands:
+  - name: team-summary
+    help: summary of team tickets
+    args:
+      - name: team
+        required: true
+    script: |-
+      teamid=$(jq '.["{{ args.team }}" | ascii_downcase]' teams.json)
+      pattern="%20s: %5d\n"
+      count_inprogress=$({{jira}} list --query "Team = $teamid and Status = 'In Progress'" | wc -l)
+      count_review=$({{jira}} list --query "Team = $teamid and Status = 'Review'" | wc -l)
+      count_qa=$({{jira}} list --query "Team = $teamid and Status = 'QA'" | wc -l)
+      count_rp=$({{jira}} list --query "Team = $teamid and Status = 'Release Pending'" | wc -l)
+      count_blocked=$({{jira}} list --query "Team = $teamid and Status = 'Blocked'" | wc -l)
+      printf "$pattern" "In Progress" $count_inprogress
+      printf "$pattern" "Review" $count_review
+      printf "$pattern" "QA" $count_qa
+      printf "$pattern" "Release Pending" $count_rp
+      printf "$pattern" "Blocked" $count_blocked
+      echo "   -------------------------"
+      printf "$pattern" "Total Active" $((count_inprogress + count_review + count_qa))
+      printf "$pattern" "Total Idle" $((count_rp + count_blocked))
   - name: mine
     help: display issues assigned to mine
     script: |-
