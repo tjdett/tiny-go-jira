@@ -6,6 +6,28 @@ queries:
   mine: "resolution = unresolved and assignee=currentuser() ORDER BY created"
 
 custom-commands:
+  - name: global-summary
+    help: summary of team tickets
+    script: |-
+      pattern="%20s: %5d\n"
+      count_todo=$({{jira}} list --query "Status = 'To Do'" -t debug | jq '.total + 0')
+      count_selected=$({{jira}} list --query "Status = 'Selected for Development'" -t debug | jq '.total + 0')
+      count_inprogress=$({{jira}} list --query "Status = 'In Progress'" -t debug | jq '.total + 0')
+      count_review=$({{jira}} list --query "Status = 'Review'" -t debug | jq '.total + 0')
+      count_qa=$({{jira}} list --query "Status = 'QA'" -t debug | jq '.total + 0')
+      count_rp=$({{jira}} list --query "Status = 'Release Pending'" -t debug | jq '.total + 0')
+      count_blocked=$({{jira}} list --query "Status = 'Blocked'" -t debug | jq '.total + 0')
+      printf "$pattern" "To Do" $count_todo
+      printf "$pattern" "Selected for Dev" $count_selected
+      printf "$pattern" "In Progress" $count_inprogress
+      printf "$pattern" "Review" $count_review
+      printf "$pattern" "QA" $count_qa
+      printf "$pattern" "Release Pending" $count_rp
+      printf "$pattern" "Blocked" $count_blocked
+      echo "   -------------------------"
+      printf "$pattern" "Total Pending" $((count_todo + count_selected))
+      printf "$pattern" "Total Active" $((count_inprogress + count_review + count_qa))
+      printf "$pattern" "Total Idle" $((count_rp + count_blocked))
   - name: team-summary
     help: summary of team tickets
     args:
@@ -14,17 +36,22 @@ custom-commands:
     script: |-
       teamid=$(jq '.["{{ args.team }}" | ascii_downcase]' teams.json)
       pattern="%20s: %5d\n"
-      count_inprogress=$({{jira}} list --query "Team = $teamid and Status = 'In Progress'" | wc -l)
-      count_review=$({{jira}} list --query "Team = $teamid and Status = 'Review'" | wc -l)
-      count_qa=$({{jira}} list --query "Team = $teamid and Status = 'QA'" | wc -l)
-      count_rp=$({{jira}} list --query "Team = $teamid and Status = 'Release Pending'" | wc -l)
-      count_blocked=$({{jira}} list --query "Team = $teamid and Status = 'Blocked'" | wc -l)
+      count_todo=$({{jira}} list --query "Team = $teamid and Status = 'To Do'" -t debug | jq '.total + 0')
+      count_selected=$({{jira}} list --query "Team = $teamid and Status = 'Selected for Development'" -t debug | jq '.total + 0')
+      count_inprogress=$({{jira}} list --query "Team = $teamid and Status = 'In Progress'" -t debug | jq '.total + 0')
+      count_review=$({{jira}} list --query "Team = $teamid and Status = 'Review'" -t debug | jq '.total + 0')
+      count_qa=$({{jira}} list --query "Team = $teamid and Status = 'QA'" -t debug | jq '.total + 0')
+      count_rp=$({{jira}} list --query "Team = $teamid and Status = 'Release Pending'" -t debug | jq '.total + 0')
+      count_blocked=$({{jira}} list --query "Team = $teamid and Status = 'Blocked'" -t debug | jq '.total + 0')
+      printf "$pattern" "To Do" $count_todo
+      printf "$pattern" "Selected for Dev" $count_selected
       printf "$pattern" "In Progress" $count_inprogress
       printf "$pattern" "Review" $count_review
       printf "$pattern" "QA" $count_qa
       printf "$pattern" "Release Pending" $count_rp
       printf "$pattern" "Blocked" $count_blocked
       echo "   -------------------------"
+      printf "$pattern" "Total Pending" $((count_todo + count_selected))
       printf "$pattern" "Total Active" $((count_inprogress + count_review + count_qa))
       printf "$pattern" "Total Idle" $((count_rp + count_blocked))
   - name: mine
