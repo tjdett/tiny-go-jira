@@ -28,6 +28,14 @@ custom-commands:
       printf "$pattern" "Total Pending" $((count_todo + count_selected))
       printf "$pattern" "Total Active" $((count_inprogress + count_review + count_qa))
       printf "$pattern" "Total Idle" $((count_rp + count_blocked))
+  - name: team-list
+    help: list of team tickets
+    args:
+      - name: team
+        required: true
+    script: |-
+      teamid=$(jq '.["{{ args.team }}" | ascii_downcase]' teams.json)
+      {{jira}} list --query "resolution = unresolved and Team = $teamid and status != 'New' order by priority, key"
   - name: team-summary
     help: summary of team tickets
     args:
