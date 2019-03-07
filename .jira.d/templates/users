@@ -1,0 +1,2 @@
+{{ range . }}{{color "green"}}{{ .name | printf "%-30s"}}{{color "reset"}} {{ .displayName }} {{color "+bh"}}<{{ .emailAddress }}>{{color "reset"}}
+{{ end }}

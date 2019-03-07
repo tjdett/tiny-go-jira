@@ -66,3 +66,7 @@ custom-commands:
     help: display issues assigned to mine
     script: |-
       {{jira}} list --named-query mine
+  - name: users
+    help: display users
+    script: |-
+      {{jira}} req /rest/api/2/user/assignable/search\?project=HELP\&username -t users
