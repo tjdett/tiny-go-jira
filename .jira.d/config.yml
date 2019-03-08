@@ -28,6 +28,10 @@ custom-commands:
       printf "$pattern" "Total Pending" $((count_todo + count_selected))
       printf "$pattern" "Total Active" $((count_inprogress + count_review + count_qa))
       printf "$pattern" "Total Idle" $((count_rp + count_blocked))
+  - name: mine
+    help: display issues assigned to mine
+    script: |-
+      {{jira}} list --named-query mine
   - name: team-list
     help: list of team tickets
     args:
@@ -62,10 +66,14 @@ custom-commands:
       printf "$pattern" "Total Pending" $((count_todo + count_selected))
       printf "$pattern" "Total Active" $((count_inprogress + count_review + count_qa))
       printf "$pattern" "Total Idle" $((count_rp + count_blocked))
-  - name: mine
-    help: display issues assigned to mine
+  - name: to-review
+    help: move ticket to Review status
+    args:
+      - name: issue
+        help: issue to transition
+        required: true
     script: |-
-      {{jira}} list --named-query mine
+      {{jira}} transition --noedit Review {{ args.issue }}
   - name: users
     help: display users
     script: |-
