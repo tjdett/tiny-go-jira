@@ -74,6 +74,21 @@ custom-commands:
         required: true
     script: |-
       {{jira}} transition --noedit Review {{ args.issue }}
+  - name: slack-msg
+    help: generate slack message about ticket
+    args:
+      - name: action
+        type: ENUM
+        help: action on message
+        required: true
+        enum:
+          - "took"
+      - name: issue
+        help: issue for message
+        required: true
+    script: |-
+      emoji=$(jq -r '.["{{ args.action }}" | ascii_downcase]' emoji.json)
+      printf "%s %s\n" "$emoji" "$({{jira}} view -t slack-oneline {{ args.issue }})"
   - name: users
     help: display users
     script: |-
