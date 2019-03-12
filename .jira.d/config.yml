@@ -39,7 +39,7 @@ custom-commands:
         required: true
     script: |-
       teamid=$(jq '.["{{ args.team }}" | ascii_downcase]' teams.json)
-      {{jira}} list --query "resolution = unresolved and Team = $teamid and status != 'New' order by priority, key"
+      {{jira}} list -t list-assigned --query "resolution = unresolved and Team = $teamid and status != 'New' order by priority, key"
   - name: team-summary
     help: summary of team tickets
     args:

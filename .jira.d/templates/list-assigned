@@ -1,0 +1,2 @@
+{{ range .issues }}{{ color "red" }}P{{ .fields.priority.name | regReplace "-.*$" "" | printf "%-2s" }}{{ color "reset" }} {{ color "blue" }}{{ .key | printf "%-12s" }}{{ color "reset" }} {{ color "green" }}{{ .fields.status.name | abbrev 12 | printf "%-12s" }}{{ color "reset" }} {{ color "yellow" }}{{ with .fields.assignee }}{{ .displayName | abbrev 12 | printf "%-12s" }}{{ else }}            {{ end }}{{ color "reset" }} {{ .fields.summary }}
+{{ end }}
