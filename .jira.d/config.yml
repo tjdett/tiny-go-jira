@@ -2,7 +2,7 @@ endpoint: https://ephocks.atlassian.net
 authentication-method: api-token
 
 queries:
-  cloud-team: "resolution = unresolved and Team = 23"
+  cloud-team: "resolution = unresolved and 'Assigned Team' = 23"
   mine: "resolution = unresolved and assignee=currentuser() ORDER BY created"
 
 custom-commands:
@@ -39,7 +39,7 @@ custom-commands:
         required: true
     script: |-
       teamid=$(jq '.["{{ args.team }}" | ascii_downcase]' teams.json)
-      {{jira}} list -t list-assigned --query "resolution = unresolved and Team = $teamid and status != 'New' order by priority, key"
+      {{jira}} list -t list-assigned --query "resolution = unresolved and 'Assigned Team' = $teamid and status != 'New' order by priority, key"
   - name: team-summary
     help: summary of team tickets
     args:
@@ -48,13 +48,13 @@ custom-commands:
     script: |-
       teamid=$(jq '.["{{ args.team }}" | ascii_downcase]' teams.json)
       pattern="%20s: %5d\n"
-      count_todo=$({{jira}} list --query "Team = $teamid and Status = 'To Do'" -t debug | jq '.total + 0')
-      count_selected=$({{jira}} list --query "Team = $teamid and Status = 'Selected for Development'" -t debug | jq '.total + 0')
-      count_inprogress=$({{jira}} list --query "Team = $teamid and Status = 'In Progress'" -t debug | jq '.total + 0')
-      count_review=$({{jira}} list --query "Team = $teamid and Status = 'Review'" -t debug | jq '.total + 0')
-      count_qa=$({{jira}} list --query "Team = $teamid and Status = 'QA'" -t debug | jq '.total + 0')
-      count_rp=$({{jira}} list --query "Team = $teamid and Status = 'Release Pending'" -t debug | jq '.total + 0')
-      count_blocked=$({{jira}} list --query "Team = $teamid and Status = 'Blocked'" -t debug | jq '.total + 0')
+      count_todo=$({{jira}} list --query "'Assigned Team' = $teamid and Status = 'To Do'" -t debug | jq '.total + 0')
+      count_selected=$({{jira}} list --query "'Assigned Team' = $teamid and Status = 'Selected for Development'" -t debug | jq '.total + 0')
+      count_inprogress=$({{jira}} list --query "'Assigned Team' = $teamid and Status = 'In Progress'" -t debug | jq '.total + 0')
+      count_review=$({{jira}} list --query "'Assigned Team' = $teamid and Status = 'Review'" -t debug | jq '.total + 0')
+      count_qa=$({{jira}} list --query "'Assigned Team' = $teamid and Status = 'QA'" -t debug | jq '.total + 0')
+      count_rp=$({{jira}} list --query "'Assigned Team' = $teamid and Status = 'Release Pending'" -t debug | jq '.total + 0')
+      count_blocked=$({{jira}} list --query "'Assigned Team' = $teamid and Status = 'Blocked'" -t debug | jq '.total + 0')
       printf "$pattern" "To Do" $count_todo
       printf "$pattern" "Selected for Dev" $count_selected
       printf "$pattern" "In Progress" $count_inprogress
